@@ -1102,6 +1102,7 @@ int PWatchViewerWindowPopulate(PWatchViewerWindow *w, char *filename) {
 	
 	if (0 == addressUnitBits) {
 		fprintf(stderr,"No addressUnitBits node found in file %s, defaulting to 8 bits",filename);
+		addressUnitBits = 8;
 	}
 	
 	SVDContext context =
