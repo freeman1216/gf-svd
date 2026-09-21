@@ -2023,7 +2023,7 @@ int WatchWindowMessage(UIElement *element, UIMessage message, int di, void *dp) 
 				&& (m->code == UI_KEYCODE_ENTER || m->code == UI_KEYCODE_BACKSPACE || (m->code == UI_KEYCODE_LEFT && !w->rows[w->selectedRow]->open))
 				&& !w->rows[w->selectedRow]->parent) {
 			WatchCreateTextboxForRow(w, true);
-		} else if (m->code == UI_KEYCODE_DELETE && !w->textbox
+		} else if (w->mode == WATCH_NORMAL && m->code == UI_KEYCODE_DELETE && !w->textbox
 				&& w->selectedRow != w->rows.Length() && !w->rows[w->selectedRow]->parent) {
 			WatchDeleteExpression(w);
 		} else if (m->textBytes && m->text[0] == '/' && w->selectedRow != w->rows.Length()) {
@@ -2104,10 +2104,12 @@ int WatchWindowMessage(UIElement *element, UIMessage message, int di, void *dp) 
 		UIElementRefresh(element);
 	}
 
+    if (w->selectedRow > WatchLastRow(w)) {
+		w->selectedRow = WatchLastRow(w);
+	}
+
 	if (w->selectedRow < 0) {
 		w->selectedRow = 0;
-	} else if (w->selectedRow > WatchLastRow(w)) {
-		w->selectedRow = WatchLastRow(w);
 	}
 
 	return result;
@@ -3155,4 +3157,41 @@ UIElement *CommandSearchWindowCreate(UIElement *parent) {
 	window->display = UICodeCreate(&panel->e, UI_ELEMENT_V_FILL | UI_CODE_NO_MARGIN | UI_CODE_SELECTABLE);
 	UICodeInsertContent(window->display, "Type here to search \nGDB command descriptions.", -1, true);
 	return &panel->e;
+}
+
+//////////////////////////////////////////////////////
+// ASM window:
+//////////////////////////////////////////////////////
+
+UIElement* ASMWindowCreate(UIElement *parent) {
+	UICode*	uiAsmCode = UICodeCreate(parent, selectableSource ? UI_CODE_SELECTABLE : 0);
+	uiAsmCode->centerExecutionPointer = true;
+	return &uiAsmCode->e;
+}
+
+void ASMWindowUpdate(const char *data, UIElement *element) {
+	EvaluateCommand("disassemble /m $pc-128,$pc+128");
+
+	if (strstr(evaluateResult, "No registers.") || strstr(evaluateResult, "The current thread has terminated")) {
+		return;
+	} else {
+		UICode* asmCode = (UICode *) element;
+		UICodeInsertContent(asmCode, evaluateResult, -1, true);
+
+		char *current = strstr(evaluateResult, "=>");
+
+		if (current) {
+			int line = 0;
+			int lineHeight = UIMeasureStringHeight();
+			int viewHeight = UI_RECT_HEIGHT(asmCode->e.bounds);
+			
+			for (char *p = evaluateResult; p < current; p++) {
+				if (*p == '\n') line++;
+			}
+			
+			asmCode->vScroll->position = line * lineHeight - (viewHeight / 2);
+		}
+	}
+	
+	UIElementRefresh(element);
 }

@@ -2,7 +2,6 @@
 // 	- Setting/clearing/showing breakpoints.
 // 	- Jump/run to line.
 // 	- Shift+F10: run to next instruction (for skipping past loops).
-// 	- Split source and disassembly view.
 
 // TODO Inspect line mode:
 // 	- Jump/run to selected line.
@@ -567,7 +566,7 @@ void *DebuggerThread(void *) {
 	pipe(outputPipe);
 	pipe(inputPipe);
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__) || defined(__sun__)
 	gdbPID = fork();
 
 	if(gdbPID == 0) {
@@ -1524,6 +1523,7 @@ void InterfaceAddBuiltinWindowsAndCommands() {
 	interfaceWindows.Add({ "Thread", ThreadWindowCreate, ThreadWindowUpdate });
 	interfaceWindows.Add({ "Exe", ExecutableWindowCreate, nullptr });
 	interfaceWindows.Add({ "CmdSearch", CommandSearchWindowCreate, nullptr });
+	interfaceWindows.Add({ "ASM", ASMWindowCreate, ASMWindowUpdate });
 
 	interfaceDataViewers.Add({ "Add bitmap...", BitmapAddDialog });
 
