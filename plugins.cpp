@@ -196,7 +196,7 @@ def gf_read_word(address,size):
 		print("??")
 
 def gf_get_primitive_type_ptr(size):
-	primitives = ['unsigned char', 'short', 'int', 'long', 'long long']
+	primitives = ['unsigned char', 'unsigned short', 'unsigned int', 'unsigned long', 'unsigned long long']
 	for p in primitives:
 		try:
 			t = gdb.lookup_type(p)
@@ -379,8 +379,7 @@ void DerivedResolve(SVDContext *context) {
 				PWatch *failed = context->unresolved[i];
 				DerivedFromInfo *failedInfo = &context->derivedInfo[failed->derivedInfoIdx];
 				fprintf(stderr,
-						"Failed derivedFrom resolution "
-						"name=%s,derivedFrom=%s \n",
+						"Failed derivedFrom resolution name=%s,derivedFrom=%s\n",
 						failed->key, failedInfo->derivedFullName);
 			}
 			return;
@@ -409,8 +408,7 @@ void DimNameIteratorInit(DimNameIterator *it, char *dimIndexStr) {
 		it->isRange = true;
 	} else {
 		fprintf(stderr,
-				"unrecoginsed dim index str %s, falling back to 0-N "
-				"array indeces",
+				"unrecoginsed dim index str %s, falling back to 0-N array indeces\n",
 				dimIndexStr);
 		it->currIdx = 0;
 		it->isNumeric = true;
@@ -419,12 +417,11 @@ void DimNameIteratorInit(DimNameIterator *it, char *dimIndexStr) {
 void DimNameIteratorNext(DimNameIterator *it, char *buff, int buffLen) {
 	if (!it->curr) {
 		if (it->isRange && it->rangeEnd < it->currIdx) {
-			fprintf(stderr, "dim range too short continuing with next index %d", it->currIdx);
+			fprintf(stderr, "dim range too short continuing with next index %d\n", it->currIdx);
 		}
 		if (it->dimIndexStr) {
 			fprintf(stderr,
-					"coma separated list too short continuing with "
-					"index %d",
+					"coma separated list too short continuing with index %d\n",
 					it->currIdx);
 		}
 		StringFormat(buff, buffLen, it->isNumeric == true ? "%lu" : "%c", it->currIdx);
@@ -594,24 +591,20 @@ void FieldsParse(SVDContext *context, xmlNodePtr fieldsNode, PWatch *reg, int de
 		
 		if (0 == xmlName) {
 			fprintf(stderr,
-					"Malformed field, no field name provided in "
-					"register %s\n",
+					"Malformed field, no field name provided in register %s\n",
 					reg->key);
 			continue;
 		}
 		
 		if (!it->properties && !bitInfoType) {
 			fprintf(stderr,
-					"Malformed concrete field %s , no bit info "
-					"provided in register %s falling back to full "
-					"register reports\n",
+					"Malformed concrete field %s , no bit info provided in register %s falling back to full register reports\n",
 					xmlName, reg->key);
 		}
 		
 		if (!dims && (DimIndexStr || dimIncrement)) {
 			fprintf(stderr,
-					"Malformed dimmed field %s , no dim tag provided "
-					"in register %s interpreting as a normal field\n",
+					"Malformed dimmed field %s , no dim tag provided in register %s interpreting as a normal field\n",
 					xmlName, reg->key);
 		}
 		
@@ -921,8 +914,7 @@ void PeripheralsParse(SVDContext *context, xmlNodePtr peripheralsNode, int size)
 		
 		if (0 == xmlName) {
 			fprintf(stderr,
-					"Malformed peripheral number %d, no name "
-					"provided \n",
+					"Malformed peripheral number %d, no name provided\n",
 					context->w->rows.Length());
 			continue;
 		}
@@ -935,8 +927,7 @@ void PeripheralsParse(SVDContext *context, xmlNodePtr peripheralsNode, int size)
 		
 		if (!dims && (DimIndexStr || dimIncrement)) {
 			fprintf(stderr,
-					"Malformed dimmed peripheral %s , no dim tag "
-					"provided interpreting as a normal peripheral\n",
+					"Malformed dimmed peripheral %s , no dim tag provided interpreting as a normal peripheral\n",
 					xmlName);
 		}
 		
